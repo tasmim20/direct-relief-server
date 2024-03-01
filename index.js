@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["https://direct-relief-client.vercel.app"],
+    origin: ["http://localhost:5173"],
     credentials: true,
   })
 );
@@ -35,6 +35,8 @@ async function run() {
     const db = client.db("assignment");
     const collection = db.collection("users");
     const suppliesCollection = db.collection("supplies");
+    const testimonialCollection = db.collection("testimonial");
+    const volunteerCollection = db.collection("volunteer");
 
     // User Registration
     app.post("/api/auth/register", async (req, res) => {
@@ -59,6 +61,36 @@ async function run() {
         success: true,
         message: "User registered successfully",
       });
+    });
+
+    //volunteer registration...
+    app.post("/api/volunteer", async (req, res) => {
+      const { email, number, location } = req.body;
+
+      // Check if email already exists
+      // const existingUser = await collection.findOne({ email });
+      // if (existingUser) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: "User already exists",
+      //   });
+      // }
+      // Insert volunteer into the database
+      await volunteerCollection.insertOne({ email, number, location });
+      res.status(201).json({
+        success: true,
+        message: "Volunteer registered successfully",
+      });
+    });
+
+    //get volunteer api
+    app.get("/api/volunteer", async (req, res) => {
+      const result = await volunteerCollection.find({}).toArray();
+      if (result.length) {
+        res.send({ result, success: true });
+      } else {
+        res.send({ success: false, message: "Something went wrong" });
+      }
     });
 
     // User Login
@@ -106,10 +138,31 @@ async function run() {
       res.send(supply);
     });
 
-    //get post api
+    //get testimonial api
+    app.get("/api/testimonial", async (req, res) => {
+      const result = await testimonialCollection.find({}).toArray();
+      if (result.length) {
+        res.send({ result, success: true });
+      } else {
+        res.send({ success: false, message: "Something went wrong" });
+      }
+    });
+
+    //supply post api
     app.post("/api/supplies", async (req, res) => {
       const supplies = req.body;
       const result = await suppliesCollection.insertOne(supplies);
+      if (result.insertedId) {
+        res.send({ result, success: true });
+      } else {
+        res.send({ success: false, message: "Something went wrong" });
+      }
+    });
+
+    //testimonial post api
+    app.post("/api/testimonial", async (req, res) => {
+      const testimonial = req.body;
+      const result = await testimonialCollection.insertOne(testimonial);
       if (result.insertedId) {
         res.send({ result, success: true });
       } else {
