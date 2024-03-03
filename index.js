@@ -37,6 +37,7 @@ async function run() {
     const suppliesCollection = db.collection("supplies");
     const testimonialCollection = db.collection("testimonial");
     const volunteerCollection = db.collection("volunteer");
+    const commentCollection = db.collection("comment");
 
     // User Registration
     app.post("/api/auth/register", async (req, res) => {
@@ -66,16 +67,6 @@ async function run() {
     //volunteer registration...
     app.post("/api/volunteer", async (req, res) => {
       const { email, number, location } = req.body;
-
-      // Check if email already exists
-      // const existingUser = await collection.findOne({ email });
-      // if (existingUser) {
-      //   return res.status(400).json({
-      //     success: false,
-      //     message: "User already exists",
-      //   });
-      // }
-      // Insert volunteer into the database
       await volunteerCollection.insertOne({ email, number, location });
       res.status(201).json({
         success: true,
@@ -147,6 +138,15 @@ async function run() {
         res.send({ success: false, message: "Something went wrong" });
       }
     });
+    //get comment api
+    app.get("/api/comment", async (req, res) => {
+      const result = await commentCollection.find({}).toArray();
+      if (result.length) {
+        res.send({ result, success: true });
+      } else {
+        res.send({ success: false, message: "Something went wrong" });
+      }
+    });
 
     //supply post api
     app.post("/api/supplies", async (req, res) => {
@@ -163,6 +163,16 @@ async function run() {
     app.post("/api/testimonial", async (req, res) => {
       const testimonial = req.body;
       const result = await testimonialCollection.insertOne(testimonial);
+      if (result.insertedId) {
+        res.send({ result, success: true });
+      } else {
+        res.send({ success: false, message: "Something went wrong" });
+      }
+    });
+    //comment post api
+    app.post("/api/comment", async (req, res) => {
+      const comment = req.body;
+      const result = await commentCollection.insertOne(comment);
       if (result.insertedId) {
         res.send({ result, success: true });
       } else {
