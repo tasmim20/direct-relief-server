@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://direct-relief-client1.vercel.app"],
     credentials: true,
   })
 );
